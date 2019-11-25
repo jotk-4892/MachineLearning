@@ -31,7 +31,9 @@ plot(lungcap$Htcm, log(lungcap$FEV), main = "log(lung capacity)")
 plot(lungcap$Htcm, lungcap$FEV, main = "lung capacity")
 ```
 
-Answer: By plotting both normalized and logarithmic dependent variable of FEV it is clear log(FEV) shows off a clearer linear relationship than the normalized form of FEV. Through transforming the model into a log-linear model the interpretation of the coefficients changes. A 1cm increase in height increases the average lung capacity by beta percent. The normalized model shows an exponential relationship which is linearized by taking the log of the dependent variable.
+Answer: By plotting both normalized and logarithmic dependent variable of FEV it is clear log(FEV) shows off a clearer linear relationship than the normalized form of FEV. 
+Through transforming the model into a log-linear model the interpretation of the coefficients changes. 
+A 1cm increase in height increases the average lung capacity by beta percent. The normalized model shows an exponential relationship which is linearized by taking the log of the dependent variable.
 
 #1.3 
 
@@ -51,7 +53,8 @@ Dummy: Gender -> std. error b4 (GenderM) = 0.011719
 -> The interpretation is normally not different if the variable is a dummy variable.
 
 #1.3c: Residual standard error
-the residual standard error is a measure of the "quality" of the regression fit. It describes the average amount that the response deviates from the true regression line.So its the difference in standard error between the observed and the predicted values. THus it is a goodness-of-fit measure to see how good the data points fit to the actual model.
+the residual standard error is a measure of the "quality" of the regression fit. It describes the average amount that the response deviates from the true regression line.
+So its the difference in standard error between the observed and the predicted values. THus it is a goodness-of-fit measure to see how good the data points fit to the actual model.
 
 #1.3d: F-Statistic
 The f-Statistic is an indicator how the relationship between the predictor and the response variables in the regression model is.
@@ -60,7 +63,8 @@ it is significantly different to one and thus a good F-statistic indicator.
 In R the F-statistic shows the result of an so called overall-F-Test, thus the higher the F-statistic the higher the probablity the reject the null-hypothesis that there is no realtionship between the predictors.
 
 #1.4 
-Proportion of variability equals the R-Squared of the model. R-Squared is a measurement for the fit of  the model, which takes values from 0 to 1. R-Squared of the fitted lung model equals 0.8106, which means that about  81 % of the variance can be explained by the model. Since 0.811 is close to 1, one can say the model fits the data pretty well.
+Proportion of variability equals the R-Squared of the model. R-Squared is a measurement for the fit of  the model, which takes values from 0 to 1. 
+R-Squared of the fitted lung model equals 0.8106, which means that about  81 % of the variance can be explained by the model. Since 0.811 is close to 1, one can say the model fits the data pretty well.
 
 #1.5
 ```{r}
@@ -91,14 +95,17 @@ newdata = data.frame(Age=14, Htcm = 175, Smoke = 0, Gender = "M", data = lungcap
  max((lungcap$FEV)) # equals 5.793
 
 ``` 
-Answer: Since the total range of lung capacity is reaches from  0.791 to 5.793, the lower limit does make sense. The upper limit of 5.196153 almost reaches the total limit of 5.793 and therefore it is not very expressive.A smaller conf. interval of, e.g. 99% would be more meaningful.
+Answer: Since the total range of lung capacity is reaches from  0.791 to 5.793, the lower limit does make sense. 
+The upper limit of 5.196153 almost reaches the total limit of 5.793 and therefore it is not very expressive.
+A smaller conf. interval of, e.g. 99% would be more meaningful.
 
 #1.6
 ```{r}
 lung_model2 <-  lm(log(FEV) ~ Age + Htcm + Gender + Smoke + Smoke*Age ,data=lungcap)
 summary(lung_model2)
 ``` 
-Meaning of the estimate: interaction term used as another variable. Since it is an interaction between a dummy and a continuous regressor the interpretation is as follows: Every other regressor constant, being a smoker and gaining one more year of age reduces the lung capacity by 0.0116659 percent. comparison to AGE shows: AGE is positive related to lung capacity. This might be due to the dataset. If newborns and children are included,their lung capacity increases until a certain age. That might be the reason why AGE has a positive effect on lung capacity. If AGE interacts with smokers, newborns and children are "hopefully" not included in the dataset. But from a certain age on, full lung capacity is reached and stagnates, which is shown in the next plot.
+Meaning of the estimate: interaction term used as another variable. Since it is an interaction between a dummy and a continuous regressor the interpretation is as follows: 
+Every other regressor constant, being a smoker and gaining one more year of age reduces the lung capacity by 0.0116659 percent. comparison to AGE shows: AGE is positive related to lung capacity. This might be due to the dataset. If newborns and children are included,their lung capacity increases until a certain age. That might be the reason why AGE has a positive effect on lung capacity. If AGE interacts with smokers, newborns and children are "hopefully" not included in the dataset. But from a certain age on, full lung capacity is reached and stagnates, which is shown in the next plot.
 ```{r}
 plot(lungcap$Age, lungcap$FEV)
 ```
@@ -110,7 +117,9 @@ What is the effect of the inclusion of the interaction term on the statistical s
 summary(lung_model)
 summary(lung_model2)
 ```
-Answer: Both p-values become larger. AGE is still highly statistically significant. Smoking, which was  significant at 0.01 level gets insignificant. This is due to the fact that smoking is a Dummy variable and being a smoker is already captured in the interaction  term, since each individuum in the study has a certain age. It would have been different if the interaction term had, for example, captured smoking and being a male. In this case smoking and smoking*male would have captured different observations.
+Answer: Both p-values become larger. AGE is still highly statistically significant. Smoking, which was  significant at 0.01 level gets insignificant. 
+This is due to the fact that smoking is a Dummy variable and being a smoker is already captured in the interaction  term, since each individuum in the study has a certain age. 
+It would have been different if the interaction term had, for example, captured smoking and being a male. In this case smoking and smoking*male would have captured different observations.
 
 #=====================================================================================================================
 ##Task 2: Classification (Logit/LDA/KNN)
@@ -168,7 +177,10 @@ median(tn$x2)
 
 pairs(tn,col=tn$y,main ="Pairwise Scatterplots")
 
-#Comment: Looking at the pairwise scatterplots, y seems to be positively correlated with x1 and negatively with x2. That suggests both players' qualities influencing the outcome in a for them favourable way. Since y is a factor with two levels, it is shown with values 1 and 2 instead of 0 and 1. (This could be fixed like in this corrplot:)
+#Comment: Looking at the pairwise scatterplots, y seems to be positively correlated with x1 and negatively with x2. 
+That suggests both players' qualities influencing the outcome in a for them favourable way. Since y is a factor with two levels, it is shown with values 1 and 2 instead of 0 and 1. 
+(This could be fixed like in this corrplot:)
+
 library(corrplot)
 tn2 <- data.frame(as.numeric(tn$y)-1,tn$x1,tn$x2)
 correlations <- cor(tn2)
@@ -320,7 +332,9 @@ mean(tn[tr[ idx[[j]] ], 1] != yhat)
 ```{r}
 View(cv)
 #Meaning of stored numbers: 
-#The stored numbers in cv. are the result from sapply command. This command was used to get one vector out of the five folds. CV is a matrix for all 30 different K's and thus the stored numbers are the error rates for the associated K.
+#The stored numbers in cv. are the result from sapply command. 
+This command was used to get one vector out of the five folds. 
+CV is a matrix for all 30 different K's and thus the stored numbers are the error rates for the associated K.
 
 #Average
 cv.e = colMeans(cv)
@@ -346,12 +360,16 @@ lines(ks, train.e, type="o", pch = 16, ylim = c(0.5, 0.7), col = co[3])
 lines(ks, test.e, type="o", pch = 16, ylim = c(0.5, 0.7), col = co[1])
 legend("topright", legend = c("Test", "5-fold CV", "Training"), lty = 1, col=co)
 ```
-Answer: #The higher the number of neighbours the lower are the missclasication errors in all three models. The best perfomance has the 5-fold-CV with around 30 neighbors. Thus the bias in y(x) and variance get lower if K increases.
+Answer: #The higher the number of neighbours the lower are the missclasication errors in all three models. 
+The best perfomance has the 5-fold-CV with around 30 neighbors. Thus the bias in y(x) and variance get lower if K increases.
 
 # 2.9
 Comparison: Each Graph shown splitted under 2.9a-2.9c
 
-If K=1 the decision boundary is highly flexible and thus has a low bias but a high variance. As K gets higher the plots show that there is less #flexibility in the models. The higher K gets the closer the model gets to a linear relationship. Thus this comes with low variance but a higher #bias. With a higher flexibility the test error rate declines.
+If K=1 the decision boundary is highly flexible and thus has a low bias but a high variance. 
+As K gets higher the plots show that there is less #flexibility in the models. 
+The higher K gets the closer the model gets to a linear relationship. Thus this comes with low variance but a higher #bias. 
+With a higher flexibility the test error rate declines.
 If you set K=500 the boundary gets to a vertical line which is due to lost flexibility because of the high chosen value of K's.
 
 ```{r}
@@ -373,7 +391,10 @@ legend("topleft", c("Player 1 wins", "Player 2 wins"),
 col=c("red", "black"), pch=1)
 box()
 ```
-Answer: The graph shows the KNN approach with K =30 with red and black observations, for player 1 and player 2. There are shown the KNN decision boundary als the black line. The red area shows in which test obervations will be assigned to player 1 and same for player 2. It shows all possible values for x1 and x2 and their decision boundary. 
+Answer: The graph shows the KNN approach with K =30 with red and black observations, for player 1 and player 2. 
+There are shown the KNN decision boundary als the black line. 
+The red area shows in which test obervations will be assigned to player 1 and same for player 2. 
+It shows all possible values for x1 and x2 and their decision boundary. 
 
 
 
@@ -484,7 +505,8 @@ summary(lm.fit_cs)$coef
 
 summary(lm.fit_cs)$coef-summary(lm.fit_cstr)$coef
 ```
-Answer: higher standard errors, lower p-values. Estimates a little different. Not as accurate. Influence of UrbanYes in training set higher, more significant and in other direction than with all data!
+Answer: higher standard errors, lower p-values. Estimates a little different. 
+Not as accurate. Influence of UrbanYes in training set higher, more significant and in other direction than with all data!
 
 #2c.
 ```{r}
@@ -748,9 +770,15 @@ max(bwd.summary$rsq)
 
 #3.
 
-R-Squared indicates  how well the data fits the model. It takes values from 0 to 1. If R-Squared equals 0.8, 80 percent of the data can be explained by the model. Usually, a high R-Squared means a good fitting model. But sometimes a high RSquared results in an overfitted and therefore biased model. Since it is dependent on the number of predictors, ist value increases if more predictors are included. TTherefore R-Squared is not a good measure for choosing one model over the others, given the fact that the number of predictors differs in the models. 
+R-Squared indicates  how well the data fits the model. It takes values from 0 to 1. 
+If R-Squared equals 0.8, 80 percent of the data can be explained by the model. Usually, a high R-Squared means a good fitting model. 
+But sometimes a high RSquared results in an overfitted and therefore biased model. 
+Since it is dependent on the number of predictors, ist value increases if more predictors are included. 
+Therefore R-Squared is not a good measure for choosing one model over the others, given the fact that the number of predictors differs in the models. 
 
-MSE interpreted as the expected square distance that an estimator has from the true value. Compared tot he R-Squared ??? which is better the higher value it takes ??? we have to choose the MSE with the lowest value. Furthermore MSE indcates whether a model is overfitted, which is a problem using Rsquared.
+MSE interpreted as the expected square distance that an estimator has from the true value. 
+Compared to the R-Squared ??? which is better the higher value it takes ??? we have to choose the MSE with the lowest value. 
+Furthermore MSE indcates whether a model is overfitted, which is a problem using Rsquared.
 
 #4.
 
@@ -853,12 +881,20 @@ summary(lin.mod)
 Comparison:
 
 Ridge regression and multiple linear model:
-Estimates of both models show similar results. Both have a positive intercept and signs of almost all predictors have the same direction. Only predictor z (depth) has , considering the linear model, a negative effect on the dependent variable whereas, considering the ridge regression, depth has a positive impact on a diamond??s price. This might be due tot he fact that depth is calculated from x,y and z, so in the linear model there might be a bias due to multicollinearity. But since variable z is only significant at a very low level, we might not consider it as a expressive predictor anyway. 
+Estimates of both models show similar results. Both have a positive intercept and signs of almost all predictors have the same direction. 
+Only predictor z (depth) has , considering the linear model, a negative effect on the dependent variable whereas, considering the ridge regression, depth has a positive impact on a diamond??s price. 
+This might be due tot he fact that depth is calculated from x,y and z, so in the linear model there might be a bias due to multicollinearity. 
+But since variable z is only significant at a very low level, we might not consider it as a expressive predictor anyway. 
 
 lasso regression and multiple linear model:
-The lasso model performs variable selection, whereas the multiple linear model shows the relationship and significance between all included independent variables and y.Apart from the fact that the lasso regression only considers three independent variables [clarity.L, y and logcarat] and the intercept, whereas the multiple linear model estimates 16 (high) significant predictors, the range of the predictors are quite similar. Both intercepts have an effect of about 7, whereas the ridge regression measured an predictor about 3.64. The lasso regression only considers those dependent variables which had a high impact and a high significance level in the multiple linear model as well, 
+The lasso model performs variable selection, whereas the multiple linear model shows the relationship and significance between all included independent variables and y.
+Apart from the fact that the lasso regression only considers three independent variables [clarity.L, y and logcarat] and the intercept, whereas the multiple linear model estimates 16 (high) significant predictors, the range of the predictors are quite similar. 
+Both intercepts have an effect of about 7, whereas the ridge regression measured an predictor about 3.64. The lasso regression only considers those dependent variables which had a high impact and a high significance level in the multiple linear model as well, 
 Ridge regression and lasso regression:
-As written above, lasso regression only considers 3 independent variables. Therefore it is difficult to compare both models. But both have a positive intercept and signs of all predictors have the same direction. However, it might be neccessary that, in a direct comparison of those predictors considered in both models, the lasso regression??s magnitude is higher than in the ridge model. This might be due tot he fact that there exists collinearity in the ridge model which is eliminated in the lasso regression. 
+As written above, lasso regression only considers 3 independent variables. Therefore it is difficult to compare both models. 
+But both have a positive intercept and signs of all predictors have the same direction. 
+However, it might be neccessary that, in a direct comparison of those predictors considered in both models, the lasso regression??s magnitude is higher than in the ridge model. 
+This might be due tot he fact that there exists collinearity in the ridge model which is eliminated in the lasso regression. 
 
 ```{r}
 ridge.model
