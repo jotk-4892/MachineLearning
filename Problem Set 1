@@ -777,7 +777,7 @@ Since it is dependent on the number of predictors, ist value increases if more p
 Therefore R-Squared is not a good measure for choosing one model over the others, given the fact that the number of predictors differs in the models. 
 
 MSE interpreted as the expected square distance that an estimator has from the true value. 
-Compared to the R-Squared ??? which is better the higher value it takes ??? we have to choose the MSE with the lowest value. 
+Compared to the R-Squared which is better the higher value it takes we have to choose the MSE with the lowest value. 
 Furthermore MSE indcates whether a model is overfitted, which is a problem using Rsquared.
 
 #4.
