@@ -1,0 +1,380 @@
+##Problem Set 2
+
+
+##===========Task 1: Tree-based Methods
+
+library(ISLR)
+library(randomForest)
+library(gbm)
+library(tree)
+library(e1071)
+library(mlr)
+library(MASS)
+
+attach(Carseats)
+
+summary(Carseats)
+head(Carseats)
+##====================================================
+
+##=========1.1 Split the Data
+
+set.seed(815)
+tr = sample(dim(Carseats)[1], dim(Carseats)[1]/2)
+train.seats = Carseats[tr,]
+test.seats = Carseats[-tr,]
+head(train.seats)
+summary(train.seats)
+##====================================================
+
+##========1.2 Regression Tree
+
+
+#Regression Tree on Training Data set with all variables on Sales
+train.tree =tree(Sales~.,train.seats)
+summary(train.tree)
+plot(train.tree)
+text(train.tree, pretty=0, cex=0.75)
+
+#or if R does not supported the tree package anymore and better Plot display:
+
+library(rpart)
+install.packages("rpart.plot")
+library(rpart.plot)
+
+train.tree1 = rpart(Sales ~CompPrice+Income+Advertising+Population+Price+ShelveLoc+Age+Education+Urban+US, data=train.seats)
+summary(train.tree1)
+prp(train.tree1)
+
+##########################
+
+#Test error Rate:
+tree.pred=predict(train.tree,test.seats)
+mean((test.seats$Sales - tree.pred)^2)
+#The error is 4.518836
+
+#Plot: The plot shows a Decison Tree approach for the Regression tree on the training data set so thus,
+#just for half of the observations in the complete Data set. 
+#This tree is unpruned. The last number represents the outcome of the Variable "Sales".
+#The tree shows that there are 10 predictors for Sales. The tree has to be read always top-down. 
+#It is possible to see the three most important variables already in this tree, here ShelveLoc, Price and Age.
+#There are 18 terminal nodes in the plot, which can be read out of the summary from the tree and 
+#the variables that are actual useful for tree construction are just ShelveLoc, Price, Age, Income, ComPrice and Advertising.
+#The variable at the top of the tree is the variable with the lowest impurity measured fpr example through Gini.
+##==========================================================
+
+##========1.3 Cross Validation/ Prune Tree
+
+cv1 =cv.tree(train.tree ,FUN=prune.tree )
+names(cv1 )
+cv1
+#$dev corresponds to cross-validation error rate, thus the tree with  9 nodes results in the lowest #error
+prune1 =prune.tree(train.tree ,best =9)
+plot(prune1)
+text(prune1, pretty=0)
+#MSE
+pred.pruned = predict(prune1, test.seats)
+mean((test.seats$Sales - pred.pruned)^2)
+
+#Error rate is now 4.518287, this means pruning the tree in this case decreases minimal the MSE.
+
+##===========================================================================
+
+
+##===============1.4 
+
+
+library(mlr) 
+lrn.carseats <- makeLearner("regr.rpart")
+traintask.carseats <- makeRegrTask(data = train.seats, target = "Sales")
+set.seed(111)
+resample.res <- resample(lrn.carseats, traintask.carseats, resampling = cv10, measures = mse, show.info = FALSE)
+resample.res$measures.test
+
+#This values tell me different MSE's and how they are distributed.The consistency of the results of the test
+#are therefore between 3.76 and 6.9 which is true as the previous exercises had shown. 
+
+##=============================================================================
+
+
+##==============1.5 Bagging
+#Bagging is a special case of randomforest with m=p thus the random forest package is used
+
+library(randomForest)
+bag1 = randomForest(Sales ~ ., data = train.seats, mtry = 10, ntree = 500, importance = TRUE)
+bag1.pred=predict(bag1, test.seats)
+mean((test.seats$Sales - bag1.pred)^2)
+#The Error is 2.74537 thus bagging improves the MSE.
+
+importance(bag1)
+varImpPlot(bag1)
+#The three most important variables to predict Sales are Price, ShelveLoc and Age
+##==============================================================================
+
+##==============1.6 Random Forest
+
+rf1 =randomForest(Sales~.,data=train.seats,mtry=5, ntree= 500, importance =TRUE)
+rf1.pred = predict (rf1 ,test.seats)
+mean((test.seats$Sales - rf1.pred)^2)
+
+#The Error is 2.636145, thus the decreased again after Random Forest approach compared with Bagging.
+
+importance(rf1)
+varImpPlot(rf1)
+
+#The three most important variables are again Price, Shelveloc and Age
+
+#Varying mtry changes the MSE between ca.2.6 and 3 like seen in the previous exercise.
+##=========================================================================================
+
+##==========1.7 Boosting
+
+
+library (gbm)
+b1 =gbm(Sales~.,data=train.seats, distribution="gaussian",n.trees =1000)
+summary(b1)
+
+#Price, Age and CompPrice are the most important variables.
+
+pred.b1=predict(b1,test.seats, n.trees = 1000)
+mean((test.seats$Sales-pred.b1)^2)
+
+#The error is 1.87805 and thus significantly less than in Random Forest and all other model specifications.
+##=================================================================================================================
+
+## Task 2 - Support Vector Machines
+
+install.packages("ISLR")
+library(ISLR)
+install.packages(ggplot2)
+library(ggplot2)
+install.packages("randomForest")
+library(randomForest)
+install.packages("gbm")
+library(gbm)
+install.packages(tree)
+library(tree)
+install.packages("e1071")
+library(e1071)
+install.packages("mlr")
+library(mlr)
+install.packages("ParamHelpers")
+library(ParamHelpers)
+
+
+#=============================================================
+
+
+
+load(url("https://web.stanford.edu/~hastie/ElemStatLearn/datasets/ESL.mixture.rda"))
+#names(ESL.mixture) 
+#prob gives probabilites for each class when the true density 
+#functions are known
+#px1 and px2 are coordinates in x1 (length 69) 
+#and x2 (length 99) where class probabilites are calculated#
+rm(x,y)
+attach(ESL.mixture)
+dat=data.frame(y=factor(y),x)
+xgrid=expand.grid(X1=px1,X2=px2)
+par(pty="s")
+plot(xgrid, pch=20,cex=.2)
+points(x,col=y+1,pch=20)
+contour(px1,px2,matrix(prob,69,99),level=0.5,add=TRUE,col="blue",lwd=2)
+#optimalboundary
+
+#=============================================================
+
+#2.1.
+# Bayes classifier: 
+
+# Bayes classifier is  a method, depending on a probability 
+# distribution which orders each object out of the sample to
+# the class it probably belongs to. Here this means if the probability
+# of belonging to class 2 is higher than 50% (p>0,5), the object
+# will be classified to class 2 - or class 1 otherwise. 
+# The specialty on Bayesian statistics, next to other statistics,
+# is the conditional probability.
+
+# Given the plot: Bayes classsifier sorts all observations, given a 
+# conditional probability, into the space below or above the blue line.
+
+
+#Bayes decision boundary:
+
+# points above the line have a probability higher than 50 % that they 
+#belong to x2 , whereas points below the line have a Probability above 50 %
+# that the belong to x1. The Bayes decision boundary shows the line
+# where the conditional probability is exactly 50% (P = 0.5)
+
+
+# Bayes error rate
+
+# Bayes error rate is the inevtitable error rate which is given by the 
+# Bayes classifier. It corresponds to the highest conditional 
+# probability, so both values coincide.
+# The highest probalibity always leads to the lowest possible 
+# Bayesian error rate
+
+
+#=============================================================
+#2.2. 
+
+# In cases wherewe know the Bayes decision boundary,
+# do we still need a test set?
+
+# We can only get rid of the test set if we know the
+# parameters which show us the probability. In that case,
+# the parameters show us the decision boundary and we can get rid of 
+# the training set.
+
+#=============================================================
+#2.3. 
+
+# support vector classifier
+svcfits=tune(svm,factor(y)~.,data=dat,
+             scale=FALSE,kernel="linear",
+             ranges=list(cost=c(1e-2,1e-1,1,5,10)))
+summary(svcfits)
+svcfit=svm(factor(y)~.,data=dat,scale=FALSE,kernel="linear",cost=0.01)
+# support vector machine with radial kernel
+set.seed(4268)
+svmfits=tune(svm,factor(y)~.,data=dat,scale=FALSE,kernel="radial",
+             ranges=list(cost=c(1e-2,1e-1,1,5,10),gamma=c(0.01,1,5,10)))
+summary(svmfits)
+svmfit=svm(factor(y)~.,data=dat,scale=FALSE,kernel="radial",cost=1,gamma=5)
+# the same as in a -the Bayes boundary
+par(pty="s")
+plot(xgrid, pch=20,cex=.2)
+points(x,col=y+1,pch=20)
+contour(px1,px2,matrix(prob,69,99),level=0.5,add=TRUE,col="blue",lwd=2) 
+#optimal boundary
+# decision boundaries from svc and svm added
+svcfunc=predict(svcfit,xgrid,decision.values=TRUE)
+svcfunc=attributes(svcfunc)$decision
+contour(px1,px2,matrix(svcfunc,69,99),level=0,add=TRUE,col="red") #svc boundary
+svmfunc=predict(svmfit,xgrid,decision.values=TRUE)
+svmfunc=attributes(svmfunc)$decision
+contour(px1,px2,matrix(svmfunc,69,99),level=0,add=TRUE,col="orange") #svm boundary
+
+
+
+#What  is  the  difference  between  a  support  vector  classifier 
+#and  a  support  vector machine?
+
+# support vector classifier: 
+# SVC simply separates a dataset into two, without considering
+# the probability distribution. The line which separates the observations
+# into two differents sets is called hyperplane and its slope and intercept
+# depend on the parameters of a linear regression.
+#
+
+
+# support vector machine:
+# support vector machine, other than SVC, has the attempt to find
+# a hyperplane which reduces the sample error.
+# This results in a maximum separation between the two classes.
+# It tries to find the line by enlarging the feature space. 
+# Contrary to SVC it uses nonlinear boundaries in 
+# order to find the right hyperplane. For doing so, we might use kernels which are 
+# non-linear and therefore less sensitive to adding other data points to our sample
+
+# SVM uses a model of risk minimization reducing the error and  a 
+# test set is needed. Compared to SVC it needs a large 
+# expense for training, but there is no risk of overfitting
+# once the gammas of the kernel are chosen right.
+
+#=============================================================
+#2.4. 
+
+#What   are   parameters   for   the   support   vector   classifier?
+#How is it chosen?
+
+# For the SVC the parameters are the cost function of the data set. 
+# The linear model chooses the line, so that the costs of 
+# the given function are as small as possible (secondary condition)
+
+
+#What   are   parameters   for   the   support   vector Machines?
+#How is it chosen?
+
+# The parameters in this case are chosen by the kernel function, which in this case 
+# is not linear - bur "radial". While the parameter was costs in SVR, it now is
+# given by the gamma argument. This can be seen by the costs equal to and 
+# the specified gamma. 
+
+#=============================================================
+#2.5. 
+
+#How  would  you  evaluate  the  support  vector  machine  decision 
+#boundary  compared to the Bayes decision boundary?
+
+# The SVM hyperplane(yellow line) shows off a better fit. 
+# The Bayes decision boundary both misses out some of the red dots, 
+# which belong to class 2, and falsely includes some of the black 
+# dots instead. Furthermore it seems that some outliers deform
+# the Bayes decision Boundary and shifts it upwards, whereas
+# the SVM seems not to be overfitted. 
+
+# Overall it is very clear to see that the SVM shows off a better 
+# fit compared to the BDB
+##================================================================================
+
+#Task 3
+
+
+library(ISLR)
+library(ggplot2)
+library(randomForest)
+library(gbm)
+library(tree)
+library(e1071)
+library(mlr)
+
+load("USArrests")
+data.frame(USArrests)
+
+# 1. cluster states with euclidian distance and complete linkage
+hc.complete = hclust(dist(USArrests), method = "complete")
+
+# plot dendrogram
+plot(hc.complete, main = "Clustered States", xlab = "", sub = "With Complete Linkage and Euclidean Distance",
+     cex = 0.9)
+
+# 2. determine the cluster labels for each observation associated with a
+# given cut of the dendrogram
+
+# cut into 5 clusters
+ClusterNo <- cutree(hc.complete, 5)
+rect.hclust(hc.complete, k = 5, border = "red", cluster = ClusterNo)
+# find smallest cluster (No. 4)
+table(ClusterNo)
+# list states of cluster No. 4
+ClusterNo[ClusterNo==4]
+
+# 3. cluster with scale
+# scale data to have standard deviation = 1
+USArrests_scaled <- scale(USArrests)
+apply(USArrests_scaled, 2, sd)
+# cluster scaled data
+hc.complete_scaled <- hclust(dist(USArrests_scaled), method = "complete")
+# plot dendrogram of scaled data
+plot(hc.complete_scaled, main = "Hierarchical Clustering with Scaled Features", xlab = "", sub = "With Complete Linkage and Euclidean Distance")
+
+# redo exercise 2
+# cut into 5 clusters
+ClusterNo_scaled <- cutree(hc.complete_scaled, 5)
+rect.hclust(hc.complete_scaled, k = 5, border = "red", cluster = ClusterNo_scaled)
+# find smallest cluster (No. 2)
+table(ClusterNo_scaled)
+# list state of cluster No. 2
+ClusterNo_scaled[ClusterNo_scaled==2]
+
+# 4. the most similar states are the ones clustered first, hence their euclidian distance is
+min0 <- min(dist(USArrests_scaled))
+min0
+abline(a = min, b = 0, col=3)
+
+min1 <- min(dist(USArrests))
+min1
+# The states that are most similar are Iowa and New Hampshire
+# Their euclidian distance is 0.2058539 in the scaled dataset and 2.291288 in the unscaled one
